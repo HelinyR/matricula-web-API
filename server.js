@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const db = require('./db.js');
 
 app.get('/', (req, res) =>{
     res.send('funcionou');//mostra na web
@@ -17,4 +18,3 @@ app.listen(port, () => {
 app.use((req, res) => {
     res.send('Rota não encontrada');
 });
-
