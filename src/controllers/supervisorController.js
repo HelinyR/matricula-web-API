@@ -3,7 +3,7 @@ class SupervisorController {
         this.db = db;
     }
 
-    getAllSupervisors(req, res) {
+    getAllSupervisors(req, res) { //mostrar supervisores
         const query = `
             SELECT 
                 u.id as usuario_id,
@@ -29,51 +29,54 @@ class SupervisorController {
     }
 
 
-    createSupervisor(req, res) {
-        const {
-            nome,
-            cpf,
-            data_nascimento,
-            telefone,
-            endereco,
-            cargo,
-            rg,
-            email,
-            senha
-        } = req.body;
+   createSupervisor(req, res) {
+    const {
+        nome,
+        cpf,
+        data_nascimento,
+        telefone,
+        endereco,
+        rg,
+        email,
+        senha
+    } = req.body;
 
-        if (!nome || !cpf || !data_nascimento || !telefone || !endereco || !cargo || !rg || !email || !senha) {
-            return res.status(400).json({ error: 'Todos os campos são obrigatórios: nome, cpf, data de nascimento, telefone, endereço, cargo, rg, email, senha' });
+
+    if (!nome || !cpf || !data_nascimento || !telefone || !endereco || !rg || !email || !senha) {
+        return res.status(400).json({ error: 'Todos os campos são obrigatórios: nome, cpf, data de nascimento, telefone, endereço, rg, email, senha' });
+    }
+
+    const cargo = 'Supervisor';
+
+    const insertUsuarioQuery = `
+        INSERT INTO usuario (nome, cpf, data_nascimento, telefone, endereco, cargo, rg)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    this.db.query(insertUsuarioQuery, [nome, cpf, data_nascimento, telefone, endereco, cargo, rg], (err, result) => {
+        if (err) {
+            console.error('Erro ao inserir usuário:', err);
+            return res.status(500).json({ error: 'Erro ao inserir usuário' });
         }
 
-        const insertUsuarioQuery = `
-            INSERT INTO usuario (nome, cpf, data_nascimento, telefone, endereco, cargo, rg)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+        const usuarioId = result.insertId;
+
+        const insertSupervisorQuery = `
+            INSERT INTO supervisor (usuario_id, email, senha)
+            VALUES (?, ?, ?)
         `;
 
-        this.db.query(insertUsuarioQuery, [nome, cpf, data_nascimento, telefone, endereco, cargo, rg], (err, result) => {
-            if (err) {
-                console.error('Erro ao inserir usuário:', err);
-                return res.status(500).json({ error: 'Erro ao inserir usuário' });
+        this.db.query(insertSupervisorQuery, [usuarioId, email, senha], (err2, result2) => {
+            if (err2) {
+                console.error('Erro ao inserir supervisor:', err2);
+                return res.status(500).json({ error: 'Erro ao inserir supervisor' });
             }
 
-            const usuarioId = result.insertId;
-
-            const insertSupervisorQuery = `
-                INSERT INTO supervisor (usuario_id, email, senha)
-                VALUES (?, ?, ?)
-            `;
-
-            this.db.query(insertSupervisorQuery, [usuarioId, email, senha], (err2, result2) => {
-                if (err2) {
-                    console.error('Erro ao inserir supervisor:', err2);
-                    return res.status(500).json({ error: 'Erro ao inserir supervisor' });
-                }
-
-                res.status(201).json({ mensagem: 'Supervisor criado com sucesso', usuario_id: usuarioId });
-            });
+            res.status(201).json({ mensagem: 'Supervisor criado com sucesso', usuario_id: usuarioId });
         });
-    }
+    });
+}
+    //updateSupervisor(req,res){//atualiza supervisores}
 
 }
 
