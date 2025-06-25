@@ -5,7 +5,16 @@ class SupervisorController {
 
     getAllSupervisors(req, res) { //mostrar supervisores
         const query = `
-            SELECT * FROM Supervisores
+            SELECT    
+            nome,
+            cpf,
+            data_nascimento,
+            telefone,
+            endereco,
+            rg,
+            email 
+            FROM Supervisores 
+            WHERE ativo = 1
         `;
 
         this.db.query(query, (err, results) => {
@@ -89,9 +98,23 @@ class SupervisorController {
         );
     }
 
+    deleteSupervisor(req, res) {
+        const { id } = req.params;
 
+        const deleteSupervisorQuery = `
+            UPDATE Supervisores
+            SET ativo = 0
+            WHERE supervisor_id = ?
+        `;
 
-
+        this.db.query(deleteSupervisorQuery, [id], (err) => {
+            if (err) {
+                console.error('Erro ao deletar supervisor:', err);
+                return res.status(500).json({ error: 'Erro ao deletar supervisor' });
+            }
+            res.json({ mensagem: 'Supervisor deletado com sucesso' });
+        });
+    }
 }
 
 module.exports = SupervisorController;

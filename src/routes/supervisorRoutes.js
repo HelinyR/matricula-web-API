@@ -16,6 +16,10 @@ const setSupervisorRoutes = (app) => {
         supervisorController.updateSupervisor(req, res);
     });
 
+    app.delete('/supervisor/:id', (req, res) => { //rota deletar
+        supervisorController.deleteSupervisor(req, res);
+    });
+
 };
 
 module.exports = setSupervisorRoutes;
