@@ -41,32 +41,46 @@ class SupervisorController {
             return res.status(400).json({ error: 'Todos os campos são obrigatórios: nome, cpf, data de nascimento, telefone, endereço, rg, email, senha' });
         }
 
-        //validação de força de senha
-        if (senha) {
-            const senhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-            if (!senhaForte.test(senha)) {
-                return res.status(400).json({
-                    error: 'A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e símbolo.'
-                });
+        //checa duplicidade de email cpf ou rg
+        const checkQuery = `
+        SELECT * FROM Supervisores
+        WHERE email = ? OR cpf = ? OR rg = ?
+    `;
+        this.db.query(checkQuery, [email, cpf, rg], (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: 'Erro ao verificar duplicidade' });
             }
-        }
+            if (results.length > 0) {
+                return res.status(409).json({ error: 'E-mail, CPF ou RG já cadastrado' });
+            }
 
-        const insertSupervisorQuery = `
+            //validação de força de senha
+            if (senha) {
+                const senhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+                if (!senhaForte.test(senha)) {
+                    return res.status(400).json({
+                        error: 'A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e símbolo.'
+                    });
+                }
+            }
+
+            const insertSupervisorQuery = `
         INSERT INTO Supervisores (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-        this.db.query(
-            insertSupervisorQuery,
-            [nome, cpf, data_nascimento, telefone, endereco, rg, email, senha],
-            (err, result) => {
-                if (err) {
-                    console.error('Erro ao inserir supervisor:', err);
-                    return res.status(500).json({ error: 'Erro ao inserir supervisor' });
+            this.db.query(
+                insertSupervisorQuery,
+                [nome, cpf, data_nascimento, telefone, endereco, rg, email, senha],
+                (err, result) => {
+                    if (err) {
+                        console.error('Erro ao inserir supervisor:', err);
+                        return res.status(500).json({ error: 'Erro ao inserir supervisor' });
+                    }
+                    res.status(201).json({ mensagem: 'Supervisor criado com sucesso', supervisor_id: result.insertId });
                 }
-                res.status(201).json({ mensagem: 'Supervisor criado com sucesso', supervisor_id: result.insertId });
-            }
-        );
+            );
+        });
     }
 
     updateSupervisor(req, res) {
