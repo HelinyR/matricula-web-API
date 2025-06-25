@@ -12,6 +12,10 @@ const setSupervisorRoutes = (app) => {
         supervisorController.createSupervisor(req, res);
     });
 
+    app.put('/supervisor/:id', (req, res) => { //rota atualizar
+        supervisorController.updateSupervisor(req, res);
+    });
+
 };
 
 module.exports = setSupervisorRoutes;
