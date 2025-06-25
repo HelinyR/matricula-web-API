@@ -41,6 +41,16 @@ class AtendenteController {
             return res.status(400).json({ error: 'Todos os campos são obrigatórios: nome, cpf, data de nascimento, telefone, endereço, rg, email, senha' });
         }
 
+        //validação de força de senha
+        if (senha) {
+            const senhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+            if (!senhaForte.test(senha)) {
+                return res.status(400).json({
+                    error: 'A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e símbolo.'
+                });
+            }
+        }
+
         const insertAtendenteQuery = `
             INSERT INTO Atendentes (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -69,7 +79,7 @@ class AtendenteController {
             'email'
         ];
 
-        // Filtra apenas os campos enviados no body
+        // filtra campos enviados
         const camposParaAtualizar = campos.filter(campo => req.body[campo] !== undefined);
 
         if (camposParaAtualizar.length === 0) {

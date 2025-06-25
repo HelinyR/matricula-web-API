@@ -65,7 +65,6 @@ class CandidatoController {
 
     updateCandidato(req, res) {
         const { id } = req.params;
-        // Campos que PODEM ser atualizados (não pode trocar senha, cpf, rg, matricula)
         const campos = [
             'nome',
             'data_nascimento',
@@ -77,7 +76,7 @@ class CandidatoController {
             'turno'
         ];
 
-        // Filtra apenas os campos enviados no body
+        // filtra campos enviados
         const camposParaAtualizar = campos.filter(campo => req.body[campo] !== undefined);
 
         if (camposParaAtualizar.length === 0) {
