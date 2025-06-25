@@ -5,12 +5,14 @@ const port = 3000;
 const db = require('./db.js');
 const setSupervisorRoutes = require('./routes/supervisorRoutes.js');
 const loginRoutes = require('./routes/loginRoutes'); // ✅ NOVO
+const setAtendenteRoutes = require('./routes/atendenteRoutes.js');
 
 app.use(express.json());
 app.use(cors());
 
 setSupervisorRoutes(app);
-app.use('/api', loginRoutes); // ✅ NOVO
+setAtendenteRoutes(app); 
+app.use('/api', loginRoutes); 
 
 app.get('/', (req, res) => {
     res.send('Servidor funcionando');
