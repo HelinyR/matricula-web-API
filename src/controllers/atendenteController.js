@@ -1,4 +1,6 @@
 const { validarCPF, validarRG, validarEmail } = require('../utils/validacao');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 class AtendenteController {
     constructor(db) {
         this.db = db;
@@ -74,22 +76,28 @@ class AtendenteController {
                 });
             }
 
-            const insertAtendenteQuery = `
+            bcrypt.hash(senha, saltRounds, (err, hash) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Erro ao criptografar senha' });
+                }
+
+                const insertAtendenteQuery = `
             INSERT INTO Atendentes (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-            this.db.query(
-                insertAtendenteQuery,
-                [nome, cpf, data_nascimento, telefone, endereco, rg, email, senha],
-                (err, result) => {
-                    if (err) {
-                        console.error('Erro ao inserir atendente:', err);
-                        return res.status(500).json({ error: 'Erro ao inserir atendente' });
+                this.db.query(
+                    insertAtendenteQuery,
+                    [nome, cpf, data_nascimento, telefone, endereco, rg, email, hash],
+                    (err, result) => {
+                        if (err) {
+                            console.error('Erro ao inserir atendente:', err);
+                            return res.status(500).json({ error: 'Erro ao inserir atendente' });
+                        }
+                        res.status(201).json({ mensagem: 'Atendente criado com sucesso', atendente_id: result.insertId });
                     }
-                    res.status(201).json({ mensagem: 'Atendente criado com sucesso', atendente_id: result.insertId });
-                }
-            );
+                );
+            });
         });
     }
 
