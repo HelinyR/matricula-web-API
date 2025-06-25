@@ -1,3 +1,4 @@
+const { validarCPF, validarRG, validarEmail } = require('../utils/validacao');
 class CandidatoController {
     constructor(db) {
         this.db = db;
@@ -43,6 +44,17 @@ class CandidatoController {
 
         if (!nome || !cpf || !data_nascimento || !telefone || !endereco || !rg || !email || !matricula || !curso || !unidade || !turno) {
             return res.status(400).json({ error: 'Todos os campos obrigatórios: nome, cpf, data de nascimento, telefone, endereço, rg, email, matrícula, curso, unidade, turno' });
+        }
+
+        //verifica formato
+        if (!validarCPF(cpf)) {
+            return res.status(400).json({ error: 'CPF inválido.' });
+        }
+        if (!validarRG(rg)) {
+            return res.status(400).json({ error: 'RG inválido. Deve conter 7 dígitos numéricos.' });
+        }
+        if (!validarEmail(email)) {
+            return res.status(400).json({ error: 'E-mail inválido.' });
         }
 
         //checa duplicidade de email cpf rg ou matrícula

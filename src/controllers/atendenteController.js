@@ -1,3 +1,4 @@
+const { validarCPF, validarRG, validarEmail } = require('../utils/validacao');
 class AtendenteController {
     constructor(db) {
         this.db = db;
@@ -39,6 +40,17 @@ class AtendenteController {
 
         if (!nome || !cpf || !data_nascimento || !telefone || !endereco || !rg || !email || !senha) {
             return res.status(400).json({ error: 'Todos os campos são obrigatórios: nome, cpf, data de nascimento, telefone, endereço, rg, email, senha' });
+        }
+
+        //verifica formato
+        if (!validarCPF(cpf)) {
+            return res.status(400).json({ error: 'CPF inválido.' });
+        }
+        if (!validarRG(rg)) {
+            return res.status(400).json({ error: 'RG inválido. Deve conter 7 dígitos numéricos.' });
+        }
+        if (!validarEmail(email)) {
+            return res.status(400).json({ error: 'E-mail inválido.' });
         }
 
         // Checa duplicidade de email, cpf ou rg
