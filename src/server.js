@@ -6,12 +6,14 @@ const db = require('./db.js');
 const setSupervisorRoutes = require('./routes/supervisorRoutes.js');
 const loginRoutes = require('./routes/loginRoutes'); // ✅ NOVO
 const setAtendenteRoutes = require('./routes/atendenteRoutes.js');
+const setCandidatoRoutes = require('./routes/candidatoRoutes.js');
 
 app.use(express.json());
 app.use(cors());
 
 setSupervisorRoutes(app);
 setAtendenteRoutes(app); 
+setCandidatoRoutes(app);
 app.use('/api', loginRoutes); 
 
 app.get('/', (req, res) => {
