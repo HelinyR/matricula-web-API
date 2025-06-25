@@ -4,13 +4,13 @@ const app = express();
 const port = 3000;
 const db = require('./db.js');
 const setSupervisorRoutes = require('./routes/supervisorRoutes.js');
-const loginController = require('./routes/loginController'); // ✅ NOVO
+const loginRoutes = require('./routes/loginRoutes'); // ✅ NOVO
 
 app.use(express.json());
 app.use(cors());
 
 setSupervisorRoutes(app);
-app.use('/api', loginController); // ✅ NOVO
+app.use('/api', loginRoutes); // ✅ NOVO
 
 app.get('/', (req, res) => {
     res.send('Servidor funcionando');
