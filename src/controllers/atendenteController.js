@@ -103,6 +103,7 @@ class AtendenteController {
 
     updateAtendente(req, res) {
         const { id } = req.params;
+        const { senha_atual } = req.body;
         const campos = [
             'nome',
             'data_nascimento',
@@ -111,29 +112,51 @@ class AtendenteController {
             'email'
         ];
 
-        // filtra campos enviados
-        const camposParaAtualizar = campos.filter(campo => req.body[campo] !== undefined);
-
-        if (camposParaAtualizar.length === 0) {
-            return res.status(400).json({ error: 'Nenhum campo enviado para atualização.' });
+        if (!senha_atual) {
+            return res.status(400).json({ error: 'A senha atual é obrigatória para atualizar os dados.' });
         }
 
-        const setClause = camposParaAtualizar.map(campo => `${campo} = ?`).join(', ');
-        const values = camposParaAtualizar.map(campo => req.body[campo]);
-        values.push(id);
-
-        const updateQuery = `
-        UPDATE Atendentes 
-        SET ${setClause} 
-        WHERE atendente_id = ?
-    `;
-
-        this.db.query(updateQuery, values, (err, result) => {
-            if (err) {
-                console.error('Erro ao atualizar atendente:', err);
-                return res.status(500).json({ error: 'Erro ao atualizar atendente' });
+        //senha atual
+        const getSenhaQuery = `SELECT senha FROM Atendentes WHERE atendente_id = ?`;
+        this.db.query(getSenhaQuery, [id], (err, results) => {
+            if (err || results.length === 0) {
+                return res.status(404).json({ error: 'Atendente não encontrado.' });
             }
-            res.json({ mensagem: 'Atendente atualizado com sucesso' });
+
+            //compara com hash
+            bcrypt.compare(senha_atual, results[0].senha, (err, result) => {
+                if (err || !result) {
+                    return res.status(401).json({ error: 'Senha atual incorreta.' });
+                }
+
+                //atualiza
+                const camposParaAtualizar = campos.filter(campo => req.body[campo] !== undefined);
+                if (camposParaAtualizar.length === 0) {
+                    return res.status(400).json({ error: 'Nenhum campo enviado para atualização.' });
+                }
+
+                const setClause = camposParaAtualizar.map(campo => `${campo} = ?`).join(', ');
+                const values = camposParaAtualizar.map(campo => req.body[campo]);
+                values.push(id);
+
+                const updateAtendenteQuery = `
+                UPDATE Atendentes
+                SET ${setClause}
+                WHERE atendente_id = ?
+            `;
+
+                this.db.query(
+                    updateAtendenteQuery,
+                    values,
+                    (err) => {
+                        if (err) {
+                            console.error('Erro ao atualizar atendente:', err);
+                            return res.status(500).json({ error: 'Erro ao atualizar atendente' });
+                        }
+                        res.json({ mensagem: 'Atendente atualizado com sucesso' });
+                    }
+                );
+            });
         });
     }
 

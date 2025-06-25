@@ -106,6 +106,7 @@ class SupervisorController {
 
     updateSupervisor(req, res) {
         const { id } = req.params;
+        const { senha_atual } = req.body;
         const campos = [
             'nome',
             'data_nascimento',
@@ -114,33 +115,52 @@ class SupervisorController {
             'email'
         ];
 
-        const camposParaAtualizar = campos.filter(campo => req.body[campo] !== undefined);
-
-        if (camposParaAtualizar.length === 0) {
-            return res.status(400).json({ error: 'Nenhum campo enviado para atualização.' });
+        if (!senha_atual) {
+            return res.status(400).json({ error: 'A senha atual é obrigatória para atualizar os dados.' });
         }
 
-        const setClause = camposParaAtualizar.map(campo => `${campo} = ?`).join(', ');
-        const values = camposParaAtualizar.map(campo => req.body[campo]);
-        values.push(id);
-
-        const updateSupervisorQuery = `
-        UPDATE Supervisores
-        SET ${setClause}
-        WHERE supervisor_id = ?
-    `;
-
-        this.db.query(
-            updateSupervisorQuery,
-            values,
-            (err) => {
-                if (err) {
-                    console.error('Erro ao atualizar supervisor:', err);
-                    return res.status(500).json({ error: 'Erro ao atualizar supervisor' });
-                }
-                res.json({ mensagem: 'Supervisor atualizado com sucesso' });
+        // Busca a senha atual no banco
+        const getSenhaQuery = `SELECT senha FROM Supervisores WHERE supervisor_id = ?`;
+        this.db.query(getSenhaQuery, [id], (err, results) => {
+            if (err || results.length === 0) {
+                return res.status(404).json({ error: 'Supervisor não encontrado.' });
             }
-        );
+
+            // Compara a senha informada com o hash salvo
+            bcrypt.compare(senha_atual, results[0].senha, (err, result) => {
+                if (err || !result) {
+                    return res.status(401).json({ error: 'Senha atual incorreta.' });
+                }
+
+                // Prossegue com a atualização
+                const camposParaAtualizar = campos.filter(campo => req.body[campo] !== undefined);
+                if (camposParaAtualizar.length === 0) {
+                    return res.status(400).json({ error: 'Nenhum campo enviado para atualização.' });
+                }
+
+                const setClause = camposParaAtualizar.map(campo => `${campo} = ?`).join(', ');
+                const values = camposParaAtualizar.map(campo => req.body[campo]);
+                values.push(id);
+
+                const updateSupervisorQuery = `
+                UPDATE Supervisores
+                SET ${setClause}
+                WHERE supervisor_id = ?
+            `;
+
+                this.db.query(
+                    updateSupervisorQuery,
+                    values,
+                    (err) => {
+                        if (err) {
+                            console.error('Erro ao atualizar supervisor:', err);
+                            return res.status(500).json({ error: 'Erro ao atualizar supervisor' });
+                        }
+                        res.json({ mensagem: 'Supervisor atualizado com sucesso' });
+                    }
+                );
+            });
+        });
     }
 
     deleteSupervisor(req, res) {
