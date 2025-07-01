@@ -57,9 +57,9 @@ class AtendenteController {
 
         // Checa duplicidade de email, cpf ou rg
         const checkQuery = `
-        SELECT * FROM Atendentes
-        WHERE email = ? OR cpf = ? OR rg = ?
-    `;
+            SELECT * FROM Atendentes
+            WHERE email = ? OR cpf = ? OR rg = ?
+        `;
         this.db.query(checkQuery, [email, cpf, rg], (err, results) => {
             if (err) {
                 return res.status(500).json({ error: 'Erro ao verificar duplicidade' });
@@ -82,9 +82,9 @@ class AtendenteController {
                 }
 
                 const insertAtendenteQuery = `
-            INSERT INTO Atendentes (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+                    INSERT INTO Atendentes (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `;
 
                 this.db.query(
                     insertAtendenteQuery,
@@ -140,10 +140,10 @@ class AtendenteController {
                 values.push(id);
 
                 const updateAtendenteQuery = `
-                UPDATE Atendentes
-                SET ${setClause}
-                WHERE atendente_id = ?
-            `;
+                    UPDATE Atendentes
+                    SET ${setClause}
+                    WHERE atendente_id = ?
+                `;
 
                 this.db.query(
                     updateAtendenteQuery,

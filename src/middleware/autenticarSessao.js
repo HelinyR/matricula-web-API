@@ -1,5 +1,5 @@
 module.exports = (db, tempoExpiracaoMinutos = 60) => (req, res, next) => {
-    const token = req.headers['x-session-token'];
+    const token = req.headers['x-session-token']; // talvez troque para o JWT
     if (!token) return res.status(401).json({ erro: 'Sessão não informada' });
 
     const query = `SELECT * FROM Sessoes WHERE sessao_id = ?`;

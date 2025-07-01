@@ -53,14 +53,14 @@ class SupervisorController {
             return res.status(400).json({ error: 'RG inválido. Deve conter 7 dígitos numéricos.' });
         }
         if (!validarEmail(email)) {
-        return res.status(400).json({ error: 'Email inválido.' });
+            return res.status(400).json({ error: 'Email inválido.' });
 
         }
         //checa duplicidade de email cpf ou rg
         const checkQuery = `
-        SELECT * FROM Supervisores
-        WHERE email = ? OR cpf = ? OR rg = ?
-    `;
+            SELECT * FROM Supervisores
+            WHERE email = ? OR cpf = ? OR rg = ?
+        `;
         this.db.query(checkQuery, [email, cpf, rg], (err, results) => {
             if (err) {
                 return res.status(500).json({ error: 'Erro ao verificar duplicidade' });
@@ -85,9 +85,9 @@ class SupervisorController {
                 }
                 //salva o hash
                 const insertQuery = `
-        INSERT INTO Supervisores (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+                    INSERT INTO Supervisores (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `;
 
                 this.db.query(
                     insertQuery,
@@ -143,10 +143,10 @@ class SupervisorController {
                 values.push(id);
 
                 const updateSupervisorQuery = `
-                UPDATE Supervisores
-                SET ${setClause}
-                WHERE supervisor_id = ?
-            `;
+                    UPDATE Supervisores
+                    SET ${setClause}
+                    WHERE supervisor_id = ?
+                `;
 
                 this.db.query(
                     updateSupervisorQuery,

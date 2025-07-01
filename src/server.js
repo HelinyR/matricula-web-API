@@ -14,7 +14,7 @@ app.use(cors());
 setSupervisorRoutes(app);
 setAtendenteRoutes(app); 
 setCandidatoRoutes(app);
-app.use('/api', loginRoutes); 
+app.use(loginRoutes); 
 
 app.get('/', (req, res) => {
     res.send('Servidor funcionando');

@@ -35,7 +35,6 @@ class CandidatoController {
             endereco,
             rg,
             email,
-            senha,
             matricula,
             curso,
             unidade,
@@ -59,9 +58,9 @@ class CandidatoController {
 
         //checa duplicidade de email cpf rg ou matrícula
         const checkQuery = `
-        SELECT * FROM Candidatos
-        WHERE email = ? OR cpf = ? OR rg = ? OR matricula = ?
-    `;
+            SELECT * FROM Candidatos
+            WHERE email = ? OR cpf = ? OR rg = ? OR matricula = ?
+        `;
         this.db.query(checkQuery, [email, cpf, rg, matricula], (err, results) => {
             if (err) {
                 return res.status(500).json({ error: 'Erro ao verificar duplicidade' });
@@ -70,24 +69,14 @@ class CandidatoController {
                 return res.status(409).json({ error: 'E-mail, CPF, RG ou matrícula já cadastrado' });
             }
 
-            //validação de força de senha
-            if (senha) {
-                const senhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-                if (!senhaForte.test(senha)) {
-                    return res.status(400).json({
-                        error: 'A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e símbolo.'
-                    });
-                }
-            }
-
             const insertCandidatoQuery = `
-            INSERT INTO Candidatos (nome, cpf, data_nascimento, telefone, endereco, rg, email, senha, matricula, curso, unidade, turno)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Candidatos (nome, cpf, data_nascimento, telefone, endereco, rg, email, matricula, curso, unidade, turno)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
             this.db.query(
                 insertCandidatoQuery,
-                [nome, cpf, data_nascimento, telefone, endereco, rg, email, senha || null, matricula, curso, unidade, turno],
+                [nome, cpf, data_nascimento, telefone, endereco, rg, email || null, matricula, curso, unidade, turno],
                 (err, result) => {
                     if (err) {
                         console.error('Erro ao inserir candidato:', err);

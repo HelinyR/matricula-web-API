@@ -13,7 +13,7 @@ class loginController {
             return res.status(400).json({ erro: 'Email e senha são obrigatórios' });
         }
 
-        const query = 'SELECT * FROM supervisor WHERE email = ?';
+        const query = 'SELECT * FROM Supervisores WHERE email = ?';
         this.db.query(query, [email], (err, results) => {
             if (err) return res.status(500).json({ erro: 'Erro no banco de dados' });
             if (results.length === 0) return res.status(401).json({ erro: 'Supervisor não encontrado' });
@@ -31,11 +31,11 @@ class loginController {
                     INSERT INTO Sessoes (sessao_id, usuario_id, tipo_usuario)
                     VALUES (?, ?, ?)
                 `;
-                this.db.query(insertSessao, [sessao_id, supervisor.usuario_id, tipo_usuario], (err) => {
+                this.db.query(insertSessao, [sessao_id, supervisor.supervisor_id, tipo_usuario], (err) => {
                     if (err) return res.status(500).json({ erro: 'Erro ao criar sessão' });
                     res.json({
                         mensagem: 'Login de supervisor realizado com sucesso',
-                        supervisorId: supervisor.usuario_id,
+                        supervisorId: supervisor.supervisor_id,
                         sessaoToken: sessao_id
                     });
                 });
@@ -68,11 +68,11 @@ class loginController {
                     INSERT INTO Sessoes (sessao_id, usuario_id, tipo_usuario)
                     VALUES (?, ?, ?)
                 `;
-                this.db.query(insertSessao, [sessao_id, atendente.usuario_id, tipo_usuario], (err) => {
+                this.db.query(insertSessao, [sessao_id, atendente.atendente_id, tipo_usuario], (err) => {
                     if (err) return res.status(500).json({ erro: 'Erro ao criar sessão' });
                     res.json({
                         mensagem: 'Login de atendente realizado com sucesso',
-                        atendenteId: atendente.usuario_id,
+                        atendenteId: atendente.atendente_id,
                         sessaoToken: sessao_id
                     });
                 });
