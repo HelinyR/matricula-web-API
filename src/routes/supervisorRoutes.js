@@ -1,23 +1,23 @@
 const SupervisorController = require('../controllers/supervisorController');
 const db = require('../db.js');
-const autenticarSessao = require('../middleware/autenticarSessao')(db, 60);
+const autenticarJWT = require('../middleware/autenticarjwt');
 
 const setSupervisorRoutes = (app) => {
     const supervisorController = new SupervisorController(db);
 
-    app.get('/supervisor', (req, res) => { //rota mostrar todos
+    app.get('/supervisor', autenticarJWT, (req, res) => { //rota mostrar todos
         supervisorController.getAllSupervisors(req, res);
     });
 
-    app.post('/supervisor', (req, res) => { //rota inserir
+    app.post('/supervisor', autenticarJWT, (req, res) => { //rota inserir
         supervisorController.createSupervisor(req, res);
     });
 
-    app.put('/supervisor/:id', autenticarSessao, (req, res) => { //rota atualizar (protegida)
+    app.put('/supervisor/:id', autenticarJWT, (req, res) => { //rota atualizar (protegida)
         supervisorController.updateSupervisor(req, res);
     });
 
-    app.delete('/supervisor/:id', autenticarSessao, (req, res) => { //rota deletar (protegida)
+    app.delete('/supervisor/:id', autenticarJWT, (req, res) => { //rota deletar (protegida)
         supervisorController.deleteSupervisor(req, res);
     });
 

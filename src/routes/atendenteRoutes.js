@@ -1,6 +1,5 @@
 const AtendenteController = require('../controllers/atendenteController');
 const db = require('../db.js');
-const autenticarSessao = require('../middleware/autenticarSessao')(db, 60);
 
 const setAtendenteRoutes = (app) => {
     const atendenteController = new AtendenteController(db);
@@ -13,11 +12,11 @@ const setAtendenteRoutes = (app) => {
         atendenteController.createAtendente(req, res);
     });
 
-    app.put('/atendente/:id', autenticarSessao, (req, res) => { // Rota para atualizar um atendente (protegida)
+    app.put('/atendente/:id', (req, res) => { // Rota para atualizar um atendente (protegida)
         atendenteController.updateAtendente(req, res);
     });
 
-    app.delete('/atendente/:id', autenticarSessao, (req, res) => { // Rota para deletar um atendente (protegida)
+    app.delete('/atendente/:id', (req, res) => { // Rota para deletar um atendente (protegida)
         atendenteController.deleteAtendente(req, res);
     });
 
