@@ -45,7 +45,7 @@ class loginController {
             return res.status(400).json({ erro: 'Email e senha são obrigatórios' });
         }
 
-        const query = 'SELECT * FROM atendente WHERE email = ?';
+        const query = 'SELECT * FROM Atendentes WHERE email = ?';
         this.db.query(query, [email], (err, results) => {
             if (err) return res.status(500).json({ erro: 'Erro no banco de dados' });
             if (results.length === 0) return res.status(401).json({ erro: 'Atendente não encontrado' });
