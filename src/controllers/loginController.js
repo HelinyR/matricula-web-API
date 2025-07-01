@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+const jwtUtil = require('../utils/jwt');
 
 class loginController {
     constructor(db) {
@@ -23,21 +23,16 @@ class loginController {
                 if (err || !result) {
                     return res.status(401).json({ erro: 'Senha incorreta' });
                 }
-                //gera token
-                const sessao_id = crypto.randomBytes(32).toString('hex');
-                const tipo_usuario = 'supervisor';
-
-                const insertSessao = `
-                    INSERT INTO Sessoes (sessao_id, usuario_id, tipo_usuario)
-                    VALUES (?, ?, ?)
-                `;
-                this.db.query(insertSessao, [sessao_id, supervisor.supervisor_id, tipo_usuario], (err) => {
-                    if (err) return res.status(500).json({ erro: 'Erro ao criar sessão' });
-                    res.json({
-                        mensagem: 'Login de supervisor realizado com sucesso',
-                        supervisorId: supervisor.supervisor_id,
-                        sessaoToken: sessao_id
-                    });
+                // Gera token JWT
+                const payload = {
+                    usuario_id: supervisor.supervisor_id,
+                    tipo_usuario: 'supervisor'
+                };
+                const token = jwtUtil.gerarToken(payload);
+                res.json({
+                    mensagem: 'Login de supervisor realizado com sucesso',
+                    supervisorId: supervisor.supervisor_id,
+                    token
                 });
             });
         });
@@ -60,21 +55,16 @@ class loginController {
                 if (err || !result) {
                     return res.status(401).json({ erro: 'Senha incorreta' });
                 }
-                // Sucesso no login
-                const sessao_id = crypto.randomBytes(32).toString('hex');
-                const tipo_usuario = 'atendente';
-
-                const insertSessao = `
-                    INSERT INTO Sessoes (sessao_id, usuario_id, tipo_usuario)
-                    VALUES (?, ?, ?)
-                `;
-                this.db.query(insertSessao, [sessao_id, atendente.atendente_id, tipo_usuario], (err) => {
-                    if (err) return res.status(500).json({ erro: 'Erro ao criar sessão' });
-                    res.json({
-                        mensagem: 'Login de atendente realizado com sucesso',
-                        atendenteId: atendente.atendente_id,
-                        sessaoToken: sessao_id
-                    });
+                // Gera token JWT
+                const payload = {
+                    usuario_id: atendente.atendente_id,
+                    tipo_usuario: 'atendente'
+                };
+                const token = jwtUtil.gerarToken(payload);
+                res.json({
+                    mensagem: 'Login de atendente realizado com sucesso',
+                    atendenteId: atendente.atendente_id,
+                    token
                 });
             });
         });
