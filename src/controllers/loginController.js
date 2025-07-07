@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwtUtil = require('../utils/jwt');
 
 const LIMITE_TENTATIVAS = 5;
-const BLOQUEIO_MINUTAS = 1;
+const BLOQUEIO_MINUTAS = 15;
 
 class loginController {
     constructor(db) {
