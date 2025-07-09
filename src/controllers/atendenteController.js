@@ -28,6 +28,68 @@ class AtendenteController {
         });
     }
 
+    getAtendente(req, res) {
+        const { nome, cpf, rg } = req.query;
+
+        //deve ter pelo menos um filtro
+        if (!nome && !cpf && !rg) {
+            return res.status(400).json({
+                error: 'Informe um critério de busca (nome, cpf ou rg)'
+            });
+        }
+
+        let query = `
+        SELECT 
+            id,
+            nome,
+            cpf,
+            DATE_FORMAT(data_nascimento, '%d/%m/%Y') as data_nascimento,
+            telefone,
+            endereco,
+            rg,
+            email
+        FROM Atendentes 
+        WHERE ativo = 1
+    `;
+
+        const params = [];
+
+        if (nome) {
+            query += ' AND nome LIKE ?';
+            params.push(`%${nome}%`);
+        }
+
+        if (cpf) {
+            query += ' AND cpf = ?';
+            params.push(cpf);
+        }
+
+        if (rg) {
+            query += ' AND rg = ?';
+            params.push(rg);
+        }
+
+        // Limita a 1 resultado e ordena por nome para consistência
+        query += ' ORDER BY nome ASC LIMIT 1';
+
+        this.db.query(query, params, (err, results) => {
+            if (err) {
+                console.error('Erro ao buscar atendente:', err);
+                return res.status(500).json({
+                    error: 'Erro na consulta do atendente',
+                    details: err.message
+                });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Atendente não encontrado' });
+            }
+
+            const atendente = results[0];
+            res.json(atendente);
+        });
+    }
+
     createAtendente(req, res) {
         const {
             nome,

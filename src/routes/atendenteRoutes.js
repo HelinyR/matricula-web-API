@@ -8,6 +8,9 @@ const setAtendenteRoutes = (app) => {
     app.get('/atendente', autenticarJWT, (req, res) => { // Rota para mostrar todos os atendentes
         atendenteController.getAllAtendentes(req, res);
     });
+    app.get('/atendente',autenticarJWT, (req, res) => { // Rota para mostar atendente individual
+        atendenteController.getAtendente(req, res);
+    });
 
     app.post('/atendente', autenticarJWT, (req, res) => { // Rota para inserir um atendente
         atendenteController.createAtendente(req, res);

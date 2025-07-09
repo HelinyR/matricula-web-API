@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwtUtil = require('../utils/jwt');
+const axios = require('axios');
 
 const LIMITE_TENTATIVAS = 5;
 const BLOQUEIO_MINUTAS = 15;
@@ -9,10 +10,31 @@ class loginController {
         this.db = db;
     }
 
-    loginSupervisor(req, res) {
+    async loginSupervisor(req, res) {
         const { email, senha } = req.body;
         const ip = req.ip || req.connection.remoteAddress;
         const cargo = 'supervisor';
+
+        //valida reCAPTCHA
+        const token = req.body['g-recaptcha-response'];
+        if (!token) {
+            return res.status(400).json({ erro: 'Token do reCAPTCHA não encontrado' });
+        }
+
+        const secretKey = '6LciZ3srAAAAAPcO8p8nLSiNd1MfR6Wt8akOkQ8I';
+
+        try {
+            const resposta = await axios.post(
+                `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`
+            );
+
+            if (!resposta.data.success) {
+                return res.status(403).json({ erro: 'Falha na verificação do reCAPTCHA' });
+            }
+        } catch (error) {
+            console.error('Erro ao validar reCAPTCHA:', error);
+            return res.status(500).json({ erro: 'Erro na verificação do reCAPTCHA' });
+        }
 
         //Verifica tentativas
         const selectTentativas = 'SELECT id, tentativas, ultimo_erro FROM TentativasLogin WHERE email = ? AND ip = ? AND cargo = ? ORDER BY ultimo_erro DESC LIMIT 1';
@@ -87,10 +109,31 @@ class loginController {
         );
     }
 
-    loginAtendente(req, res) {
+    async loginAtendente(req, res) {
         const { email, senha } = req.body;
         const ip = req.ip || req.connection.remoteAddress;
-        const cargo = 'atendente'; 
+        const cargo = 'atendente';
+
+        //valida reCAPTCHA
+        const token = req.body['g-recaptcha-response'];
+        if (!token) {
+            return res.status(400).json({ erro: 'Token do reCAPTCHA não encontrado' });
+        }
+
+        const secretKey = '6LciZ3srAAAAAPcO8p8nLSiNd1MfR6Wt8akOkQ8I';
+
+        try {
+            const resposta = await axios.post(
+                `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`
+            );
+
+            if (!resposta.data.success) {
+                return res.status(403).json({ erro: 'Falha na verificação do reCAPTCHA' });
+            }
+        } catch (error) {
+            console.error('Erro ao validar reCAPTCHA:', error);
+            return res.status(500).json({ erro: 'Erro na verificação do reCAPTCHA' });
+        }
 
         // Verifica tentativas
         const selectTentativas = 'SELECT id, tentativas, ultimo_erro FROM TentativasLogin WHERE email = ? AND ip = ? AND cargo = ? ORDER BY ultimo_erro DESC LIMIT 1';
