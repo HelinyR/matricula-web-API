@@ -7,16 +7,20 @@ class CandidatoController {
     getAllCandidatos(req, res) {
         const query = `
             SELECT 
-                nome,
-                cpf,
-                data_nascimento,
-                telefone,
-                endereco,
-                rg,
-                email 
-            FROM Candidatos 
-            WHERE ativo = 1
-        `;
+                c.nome,
+                c.cpf,
+                c.data_nascimento,
+                c.telefone,
+                c.endereco,
+                c.rg,
+                c.email,
+                m.curso,
+                m.turno,
+                m.matricula_id
+            FROM Candidatos c
+            JOIN Matriculas m ON c.candidato_id = m.candidato_id
+            WHERE c.ativo = 1;
+            `
 
         this.db.query(query, (err, results) => {
             if (err) {
